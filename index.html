@@ -3,13 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Учёт личных коллекций книг, винила, фильмов и игр">
   <title>Органайзер коллекций</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="container">
-    <h1>Органайзер коллекций</h1>
-    <p>Приложение для учёта книг, виниловых пластинок, фильмов и игр.</p>
+    <header class="page-header">
+      <span class="eyebrow">COLLECTION ORGANIZER</span>
+      <h1>Моя коллекция</h1>
+      <p class="subtitle">Книги, винил, фильмы и игры — всё в одном месте.</p>
+    </header>
+    <section class="panel" aria-labelledby="formTitle">
+      <h2 id="formTitle">Добавить предмет</h2>
+      <form id="itemForm" novalidate>
+        <div class="form-grid">
+          <label class="field field-wide">
+            <span>Название <strong class="required">*</strong></span>
+            <input id="name" name="name" type="text" maxlength="120" required placeholder="Например, Гарри Поттер">
+          </label>
+          <label class="field">
+            <span>Тип коллекции <strong class="required">*</strong></span>
+            <select id="category" name="category" required>
+              <option value="">Выберите тип</option>
+              <option value="book">Книга</option>
+              <option value="vinyl">Винил</option>
+              <option value="movie">Фильм</option>
+              <option value="game">Игра</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Автор / исполнитель / режиссёр / разработчик</span>
+            <input id="creator" name="creator" type="text" maxlength="120" placeholder="Имя или название студии">
+          </label>
+          <label class="field">
+            <span>Год выпуска</span>
+            <input id="year" name="year" type="number" min="0" max="2100" step="1" placeholder="Например, 2001">
+          </label>
+          
+          <label class="field field-wide">
+            <span>Комментарий</span>
+            <textarea id="notes" name="notes" rows="3" maxlength="500" placeholder="Дополнительная информация"></textarea>
+          </label>
+        </div>
+        <div class="form-actions">
+          <button id="saveButton" type="submit" class="button primary">Добавить предмет</button>
+          <button id="cancelButton" type="button" class="button ghost" hidden>Отмена</button>
+        </div>
+        <p id="formMessage" class="form-message" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+    <section class="panel" aria-labelledby="collectionTitle">
+      <div class="list-heading">
+        <h2 id="collectionTitle">Предметы коллекции</h2>
+        <span id="counter" class="counter">Всего: 0</span>
+      </div>
+      
+      <p id="emptyMessage" class="empty-message">Коллекция пока пуста. Добавьте первый предмет.</p>
+      <ul id="itemsList" class="items-list"></ul>
+    </section>
+    <footer>Данные хранятся локально в вашем браузере.</footer>
   </main>
   <script src="script.js"></script>
 </body>
