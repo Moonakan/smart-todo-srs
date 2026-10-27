@@ -1,4 +1,4 @@
-/* Лабораторная работа 3: добавление, редактирование и удаление. */
+/* Лабораторная работа 3: полный прототип органайзера коллекций. */
 (() => {
   'use strict';
 
@@ -12,6 +12,9 @@
   const saveButton = document.getElementById('saveButton');
   const cancelButton = document.getElementById('cancelButton');
   const formTitle = document.getElementById('formTitle');
+  const search = document.getElementById('search');
+  const categoryFilter = document.getElementById('categoryFilter');
+  const statusFilter = document.getElementById('statusFilter');
   let editingId = null;
 
   function loadItems() {
@@ -59,11 +62,22 @@
   }
 
   function render() {
+    const query = search.value.trim().toLocaleLowerCase('ru-RU');
+    const category = categoryFilter.value;
+    const status = statusFilter.value;
+    const visibleItems = items.filter((item) =>
+      item.name.toLocaleLowerCase('ru-RU').includes(query) &&
+      (category === 'all' || item.category === category) &&
+      (status === 'all' || (item.status || 'В коллекции') === status)
+    );
     list.replaceChildren();
-    counter.textContent = `Всего: ${items.length}`;
-    emptyMessage.hidden = items.length > 0;
+    counter.textContent = `Показано: ${visibleItems.length} из ${items.length}`;
+    emptyMessage.hidden = visibleItems.length > 0;
+    emptyMessage.textContent = items.length === 0
+      ? 'Коллекция пока пуста. Добавьте первый предмет.'
+      : 'Ничего не найдено. Измените параметры поиска или фильтры.';
 
-    items.forEach((item) => {
+    visibleItems.forEach((item) => {
       const li = document.createElement('li');
       li.className = 'item';
       const info = document.createElement('div');
@@ -74,6 +88,10 @@
       meta.className = 'item-meta';
       meta.textContent = [LABELS[item.category] || item.category, item.creator, item.year].filter(Boolean).join(' · ');
       info.append(title, meta);
+      const badge = document.createElement('span');
+      badge.className = (item.status || 'В коллекции') === 'Хочу приобрести' ? 'tag wish' : 'tag';
+      badge.textContent = item.status || 'В коллекции';
+      info.append(badge);
       if (item.notes) {
         const note = document.createElement('p');
         note.className = 'item-note';
@@ -106,6 +124,7 @@
     const creator = document.getElementById('creator').value.trim();
     const yearText = document.getElementById('year').value.trim();
     const notes = document.getElementById('notes').value.trim();
+    const status = document.getElementById('status').value;
 
     if (!name || !LABELS[category]) {
       showMessage('Укажите название и выберите тип коллекции.', true);
@@ -124,14 +143,14 @@
         return;
       }
       const oldValues = { ...item };
-      Object.assign(item, { name, category, creator, year: yearText, notes });
+      Object.assign(item, { name, category, creator, year: yearText, notes, status });
       if (!persist()) {
         Object.assign(item, oldValues);
         return;
       }
       showMessage('Изменения сохранены.');
     } else {
-      const item = { id: makeId(), name, category, creator, year: yearText, notes, status: 'В коллекции' };
+      const item = { id: makeId(), name, category, creator, year: yearText, notes, status };
       items.push(item);
       if (!persist()) {
         items.pop();
@@ -155,6 +174,7 @@
       document.getElementById('creator').value = item.creator || '';
       document.getElementById('year').value = item.year || '';
       document.getElementById('notes').value = item.notes || '';
+      document.getElementById('status').value = item.status || 'В коллекции';
       saveButton.textContent = 'Сохранить изменения';
       formTitle.textContent = 'Редактировать предмет';
       cancelButton.hidden = false;
@@ -179,5 +199,8 @@
     showMessage('Редактирование отменено.');
   });
 
+  search.addEventListener('input', render);
+  categoryFilter.addEventListener('change', render);
+  statusFilter.addEventListener('change', render);
   render();
 })();
