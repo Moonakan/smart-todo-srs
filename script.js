@@ -1,4 +1,4 @@
-/* Лабораторная работа 3: добавление и просмотр предметов коллекции. */
+/* Лабораторная работа 3: добавление, редактирование и удаление. */
 (() => {
   'use strict';
 
@@ -9,6 +9,10 @@
   const emptyMessage = document.getElementById('emptyMessage');
   const counter = document.getElementById('counter');
   const formMessage = document.getElementById('formMessage');
+  const saveButton = document.getElementById('saveButton');
+  const cancelButton = document.getElementById('cancelButton');
+  const formTitle = document.getElementById('formTitle');
+  let editingId = null;
 
   function loadItems() {
     try {
@@ -44,6 +48,16 @@
       : `item-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   }
 
+  function makeAction(label, action, id, className) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `button small ${className}`;
+    button.textContent = label;
+    button.dataset.action = action;
+    button.dataset.id = id;
+    return button;
+  }
+
   function render() {
     list.replaceChildren();
     counter.textContent = `Всего: ${items.length}`;
@@ -66,9 +80,23 @@
         note.textContent = item.notes;
         info.append(note);
       }
-      li.append(info);
+      const actions = document.createElement('div');
+      actions.className = 'item-actions';
+      actions.append(
+        makeAction('Редактировать', 'edit', item.id, 'edit'),
+        makeAction('Удалить', 'delete', item.id, 'delete')
+      );
+      li.append(info, actions);
       list.append(li);
     });
+  }
+
+  function resetEditor() {
+    editingId = null;
+    form.reset();
+    saveButton.textContent = 'Добавить предмет';
+    formTitle.textContent = 'Добавить предмет';
+    cancelButton.hidden = true;
   }
 
   form.addEventListener('submit', (event) => {
@@ -88,18 +116,68 @@
       return;
     }
 
-    const item = { id: makeId(), name, category, creator, year: yearText, notes, status: 'В коллекции' };
-    items.push(item);
-    if (!persist()) {
-      items.pop();
-      return;
+    if (editingId) {
+      const item = items.find((entry) => entry.id === editingId);
+      if (!item) {
+        showMessage('Предмет не найден.', true);
+        resetEditor();
+        return;
+      }
+      const oldValues = { ...item };
+      Object.assign(item, { name, category, creator, year: yearText, notes });
+      if (!persist()) {
+        Object.assign(item, oldValues);
+        return;
+      }
+      showMessage('Изменения сохранены.');
+    } else {
+      const item = { id: makeId(), name, category, creator, year: yearText, notes, status: 'В коллекции' };
+      items.push(item);
+      if (!persist()) {
+        items.pop();
+        return;
+      }
+      showMessage('Предмет добавлен в коллекцию.');
     }
-    form.reset();
-    showMessage('Предмет добавлен в коллекцию.');
+    resetEditor();
     render();
-    document.getElementById('name').focus();
+  });
+
+  list.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-action]');
+    if (!button) return;
+    const item = items.find((entry) => entry.id === button.dataset.id);
+    if (!item) return;
+    if (button.dataset.action === 'edit') {
+      editingId = item.id;
+      document.getElementById('name').value = item.name;
+      document.getElementById('category').value = item.category;
+      document.getElementById('creator').value = item.creator || '';
+      document.getElementById('year').value = item.year || '';
+      document.getElementById('notes').value = item.notes || '';
+      saveButton.textContent = 'Сохранить изменения';
+      formTitle.textContent = 'Редактировать предмет';
+      cancelButton.hidden = false;
+      showMessage('');
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (button.dataset.action === 'delete') {
+      if (!window.confirm(`Удалить «${item.name}» из коллекции?`)) return;
+      const index = items.indexOf(item);
+      items.splice(index, 1);
+      if (!persist()) {
+        items.splice(index, 0, item);
+        return;
+      }
+      if (editingId === item.id) resetEditor();
+      showMessage('Предмет удалён.');
+      render();
+    }
+  });
+
+  cancelButton.addEventListener('click', () => {
+    resetEditor();
+    showMessage('Редактирование отменено.');
   });
 
   render();
 })();
-

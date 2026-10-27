@@ -22,7 +22,7 @@ h2 { font-size: 21px; margin: 0 0 18px; }
 .button.ghost { color: #345fc7; background: #eef3ff; }
 .button.small { font-weight: 600; padding: 7px 11px; font-size: 12px; }
 .button.edit { background: #e9effe; color: #284a9c; }
-
+.button.delete { background: #ffedef; color: #a62432; }
 .button:hover { filter: brightness(.96); }
 [hidden] { display: none !important; }
 .form-message { min-height: 18px; color: #1c7a51; font-size: 14px; margin: 10px 0 0; }
@@ -42,4 +42,3 @@ h2 { font-size: 21px; margin: 0 0 18px; }
 .tag.wish { background: #fff1da; color: #8a5d1d; }
 footer { color: #778196; font-size: 12px; text-align: center; margin-top: 22px; }
 @media (max-width: 700px) { .container { margin: 20px auto; } .panel { padding: 18px; } .form-grid, .toolbar { grid-template-columns: 1fr; } .item { flex-direction: column; } }
-
