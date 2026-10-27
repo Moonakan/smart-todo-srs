@@ -1,0 +1,35 @@
+name: CI - Code Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate HTML structure
+        run: test -s index.html
+
+      - name: Validate CSS file
+        run: test -s style.css
+
+      - name: Validate JavaScript file
+        run: test -s script.js
+
+      - name: Check JavaScript syntax
+        run: node --check script.js
+
+      - name: Check essential HTML elements
+        run: |
+          grep -q 'id="itemForm"' index.html
+          grep -q 'id="itemsList"' index.html
+          grep -q 'id="search"' index.html
+
+      - name: Validation completed
+        run: echo 'All basic validations passed!'
