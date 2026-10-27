@@ -40,7 +40,13 @@
             <span>Год выпуска</span>
             <input id="year" name="year" type="number" min="0" max="2100" step="1" placeholder="Например, 2001">
           </label>
-          
+          <label class="field">
+            <span>Статус</span>
+            <select id="status" name="status">
+              <option value="В коллекции">В коллекции</option>
+              <option value="Хочу приобрести">Хочу приобрести</option>
+            </select>
+          </label>
           <label class="field field-wide">
             <span>Комментарий</span>
             <textarea id="notes" name="notes" rows="3" maxlength="500" placeholder="Дополнительная информация"></textarea>
@@ -58,7 +64,30 @@
         <h2 id="collectionTitle">Предметы коллекции</h2>
         <span id="counter" class="counter">Всего: 0</span>
       </div>
-      
+      <div class="toolbar">
+        <label class="field">
+          <span>Поиск по названию</span>
+          <input id="search" type="search" placeholder="Введите название...">
+        </label>
+        <label class="field">
+          <span>Категория</span>
+          <select id="categoryFilter">
+            <option value="all">Все</option>
+            <option value="book">Книги</option>
+            <option value="vinyl">Винил</option>
+            <option value="movie">Фильмы</option>
+            <option value="game">Игры</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Статус</span>
+          <select id="statusFilter">
+            <option value="all">Все статусы</option>
+            <option value="В коллекции">В коллекции</option>
+            <option value="Хочу приобрести">Хочу приобрести</option>
+          </select>
+        </label>
+      </div>
       <p id="emptyMessage" class="empty-message">Коллекция пока пуста. Добавьте первый предмет.</p>
       <ul id="itemsList" class="items-list"></ul>
     </section>
