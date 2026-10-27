@@ -1,45 +1,183 @@
-/* Приложение «Органайзер коллекций». Лабораторная работа № 3. */
-:root { color-scheme: light; font-family: Arial, Helvetica, sans-serif; background: #f4f6fb; color: #172033; }
-* { box-sizing: border-box; }
-body { margin: 0; }
-.container { width: min(970px, calc(100% - 32px)); margin: 38px auto; }
-.page-header { margin-bottom: 26px; }
-.eyebrow { color: #526bb4; font-size: 12px; font-weight: 800; letter-spacing: 2px; }
-h1 { margin: 8px 0; font-size: clamp(28px, 5vw, 42px); }
-h2 { font-size: 21px; margin: 0 0 18px; }
-.subtitle { color: #65738b; margin: 0; }
-.panel { margin-bottom: 20px; padding: 26px; background: #fff; border: 1px solid #e4e9f3; box-shadow: 0 8px 24px #12214a0a; border-radius: 16px; }
-.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.field { display: flex; flex-direction: column; gap: 7px; min-width: 0; font-size: 14px; font-weight: 600; }
-.field-wide { grid-column: 1 / -1; }
-.field input, .field select, .field textarea { width: 100%; border-radius: 9px; border: 1px solid #cbd5e1; padding: 11px 12px; font: 400 15px Arial, sans-serif; background: #fff; color: #172033; }
-.field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid #5c7def; outline-offset: 1px; }
-.required { color: #bd2534; }
-.form-actions { display: flex; gap: 10px; margin-top: 18px; }
-.button { padding: 10px 16px; border-radius: 9px; border: 1px solid transparent; font-size: 14px; font-weight: 700; cursor: pointer; }
-.button.primary { color: #fff; background: #345fc7; }
-.button.primary:hover { background: #224aa9; }
-.button.ghost { color: #345fc7; background: #eef3ff; }
-.button.small { font-weight: 600; padding: 7px 11px; font-size: 12px; }
-.button.edit { background: #e9effe; color: #284a9c; }
+/* Лабораторная работа 3: добавление, редактирование и удаление. */
+(() => {
+  'use strict';
 
-.button:hover { filter: brightness(.96); }
-[hidden] { display: none !important; }
-.form-message { min-height: 18px; color: #1c7a51; font-size: 14px; margin: 10px 0 0; }
-.form-message.error { color: #ba2632; }
-.list-heading { display: flex; gap: 16px; align-items: baseline; justify-content: space-between; }
-.counter { color: #627086; background: #eef2f9; border-radius: 20px; padding: 5px 10px; font-size: 12px; white-space: nowrap; }
-.empty-message { background: #f5f7fc; border-radius: 10px; color: #65738b; padding: 20px; margin: 0; text-align: center; }
-.items-list { padding: 0; margin: 0; list-style: none; }
-.item { padding: 16px 0; border-top: 1px solid #edf0f6; display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; }
-.item:first-child { border-top: 0; }
-.item-title { margin: 0 0 6px; font-size: 17px; overflow-wrap: anywhere; }
-.item-meta { color: #617087; font-size: 13px; line-height: 1.6; margin: 0; overflow-wrap: anywhere; }
-.item-note { font-size: 13px; line-height: 1.5; margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-.item-actions { display: flex; gap: 7px; flex-shrink: 0; }
-.toolbar { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; margin-bottom: 18px; }
-.tag { display: inline-block; border-radius: 14px; background: #e8f6ec; color: #2e7049; padding: 3px 8px; font-size: 12px; font-weight: 700; margin-top: 8px; }
-.tag.wish { background: #fff1da; color: #8a5d1d; }
-footer { color: #778196; font-size: 12px; text-align: center; margin-top: 22px; }
-@media (max-width: 700px) { .container { margin: 20px auto; } .panel { padding: 18px; } .form-grid, .toolbar { grid-template-columns: 1fr; } .item { flex-direction: column; } }
+  const STORAGE_KEY = 'collection-organizer-v1';
+  const LABELS = { book: 'Книга', vinyl: 'Винил', movie: 'Фильм', game: 'Игра' };
+  const form = document.getElementById('itemForm');
+  const list = document.getElementById('itemsList');
+  const emptyMessage = document.getElementById('emptyMessage');
+  const counter = document.getElementById('counter');
+  const formMessage = document.getElementById('formMessage');
+  const saveButton = document.getElementById('saveButton');
+  const cancelButton = document.getElementById('cancelButton');
+  const formTitle = document.getElementById('formTitle');
+  let editingId = null;
 
+  function loadItems() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      return Array.isArray(stored) ? stored.filter((item) => item && typeof item.name === 'string') : [];
+    } catch (error) {
+      console.warn('Не удалось загрузить коллекцию:', error);
+      return [];
+    }
+  }
+
+  const items = loadItems();
+
+  function persist() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      return true;
+    } catch (error) {
+      console.error('Не удалось сохранить коллекцию:', error);
+      showMessage('Не удалось сохранить данные в браузере.', true);
+      return false;
+    }
+  }
+
+  function showMessage(text, isError = false) {
+    formMessage.textContent = text;
+    formMessage.classList.toggle('error', isError);
+  }
+
+  function makeId() {
+    return typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `item-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+
+  function makeAction(label, action, id, className) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `button small ${className}`;
+    button.textContent = label;
+    button.dataset.action = action;
+    button.dataset.id = id;
+    return button;
+  }
+
+  function render() {
+    list.replaceChildren();
+    counter.textContent = `Всего: ${items.length}`;
+    emptyMessage.hidden = items.length > 0;
+
+    items.forEach((item) => {
+      const li = document.createElement('li');
+      li.className = 'item';
+      const info = document.createElement('div');
+      const title = document.createElement('h3');
+      title.className = 'item-title';
+      title.textContent = item.name;
+      const meta = document.createElement('p');
+      meta.className = 'item-meta';
+      meta.textContent = [LABELS[item.category] || item.category, item.creator, item.year].filter(Boolean).join(' · ');
+      info.append(title, meta);
+      if (item.notes) {
+        const note = document.createElement('p');
+        note.className = 'item-note';
+        note.textContent = item.notes;
+        info.append(note);
+      }
+      const actions = document.createElement('div');
+      actions.className = 'item-actions';
+      actions.append(
+        makeAction('Редактировать', 'edit', item.id, 'edit'),
+        makeAction('Удалить', 'delete', item.id, 'delete')
+      );
+      li.append(info, actions);
+      list.append(li);
+    });
+  }
+
+  function resetEditor() {
+    editingId = null;
+    form.reset();
+    saveButton.textContent = 'Добавить предмет';
+    formTitle.textContent = 'Добавить предмет';
+    cancelButton.hidden = true;
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const category = document.getElementById('category').value;
+    const creator = document.getElementById('creator').value.trim();
+    const yearText = document.getElementById('year').value.trim();
+    const notes = document.getElementById('notes').value.trim();
+
+    if (!name || !LABELS[category]) {
+      showMessage('Укажите название и выберите тип коллекции.', true);
+      return;
+    }
+    if (yearText && (!/^\d{1,4}$/.test(yearText) || Number(yearText) > 2100)) {
+      showMessage('Год выпуска должен быть целым числом от 0 до 2100.', true);
+      return;
+    }
+
+    if (editingId) {
+      const item = items.find((entry) => entry.id === editingId);
+      if (!item) {
+        showMessage('Предмет не найден.', true);
+        resetEditor();
+        return;
+      }
+      const oldValues = { ...item };
+      Object.assign(item, { name, category, creator, year: yearText, notes });
+      if (!persist()) {
+        Object.assign(item, oldValues);
+        return;
+      }
+      showMessage('Изменения сохранены.');
+    } else {
+      const item = { id: makeId(), name, category, creator, year: yearText, notes, status: 'В коллекции' };
+      items.push(item);
+      if (!persist()) {
+        items.pop();
+        return;
+      }
+      showMessage('Предмет добавлен в коллекцию.');
+    }
+    resetEditor();
+    render();
+  });
+
+  list.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-action]');
+    if (!button) return;
+    const item = items.find((entry) => entry.id === button.dataset.id);
+    if (!item) return;
+    if (button.dataset.action === 'edit') {
+      editingId = item.id;
+      document.getElementById('name').value = item.name;
+      document.getElementById('category').value = item.category;
+      document.getElementById('creator').value = item.creator || '';
+      document.getElementById('year').value = item.year || '';
+      document.getElementById('notes').value = item.notes || '';
+      saveButton.textContent = 'Сохранить изменения';
+      formTitle.textContent = 'Редактировать предмет';
+      cancelButton.hidden = false;
+      showMessage('');
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (button.dataset.action === 'delete') {
+      if (!window.confirm(`Удалить «${item.name}» из коллекции?`)) return;
+      const index = items.indexOf(item);
+      items.splice(index, 1);
+      if (!persist()) {
+        items.splice(index, 0, item);
+        return;
+      }
+      if (editingId === item.id) resetEditor();
+      showMessage('Предмет удалён.');
+      render();
+    }
+  });
+
+  cancelButton.addEventListener('click', () => {
+    resetEditor();
+    showMessage('Редактирование отменено.');
+  });
+
+  render();
+})();
