@@ -35,3 +35,23 @@
 **Документация:** [Процесс разработки](https://github.com/Moonakan/smart-todo-srs/wiki/Процесс-разработки).
 
 **Релизы:** [GitHub Releases](https://github.com/Moonakan/smart-todo-srs/releases).
+
+
+---
+
+## Лабораторная работа №4 — Проектирование базы данных
+
+Для приложения «Органайзер коллекций» спроектирована реляционная база данных **SQLite**, нормализованная до **3НФ**.
+
+- [ER-диаграмма (PNG)](docs/database/er_diagram.png) и [SVG](docs/database/er_diagram.svg).
+- [Схема БД с ограничениями и индексами](database/schema.sql).
+- [Тестовые данные](database/seed_data.sql).
+- [Примеры проверочных запросов](database/check_queries.sql).
+- [Описание нормализации](database/normalization.md).
+- [Wiki: Нормализация базы данных](https://github.com/Moonakan/smart-todo-srs/wiki/normalization).
+
+**Таблицы:** `Users`, `CollectionTypes`, `ItemStatuses`, `Items`, `Creators`, `CreatorRoles`, `ItemCreators`.
+
+**Как проверить SQLite:** создайте пустую базу и последовательно выполните `database/schema.sql`, затем `database/seed_data.sql`. Проверка целостности: `PRAGMA foreign_key_check;` (пустой результат означает отсутствие найденных ошибок ссылок).
+
+**Важно:** веб-приложение из лабораторной №3 всё ещё хранит данные в `localStorage`. SQLite-схема — отдельный результат проектирования в лабораторной №4; серверное подключение БД в этой работе не выполняется.
