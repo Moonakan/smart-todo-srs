@@ -43,7 +43,7 @@
 
 Для приложения «Органайзер коллекций» спроектирована реляционная база данных **SQLite**, нормализованная до **3НФ**.
 
-- [ER-диаграмма (PNG)]([docs/database/er_diagram.png](https://github.com/Moonakan/smart-todo-srs/blob/feature/database-3nf/er_diagram.png)) и [SVG]([docs/database/er_diagram.svg](https://github.com/Moonakan/smart-todo-srs/blob/feature/database-3nf/er_diagram.svg)).
+- [ER-диаграмма (PNG)](docs/database/er_diagram.png) и [SVG](docs/database/er_diagram.svg).
 - [Схема БД с ограничениями и индексами](database/schema.sql).
 - [Тестовые данные](database/seed_data.sql).
 - [Примеры проверочных запросов](database/check_queries.sql).
