@@ -36,19 +36,19 @@
 
 ### 2. Редактирование предмета и его статуса
 
-![Редактирование и статус]([sequence/edit_status_sequence.png](https://github.com/Moonakan/smart-todo-srs/blob/docs/lab5-behavior-diagrams/docs/behavior/edit_status_sequence.png))
+![Редактирование и статус](sequence/edit_status_sequence.png)
 
 Пользователь выбирает предмет, изменяет поля или статус, а скрипт проверяет данные и сохраняет их в `localStorage`. При ошибке сохранения предыдущие значения восстанавливаются.
 
 ### 3. Поиск и фильтрация
 
-![Поиск и фильтрация]([sequence/filter_items_sequence.png](https://github.com/Moonakan/smart-todo-srs/blob/docs/lab5-behavior-diagrams/docs/behavior/filter_items_sequence.png))
+![Поиск и фильтрация](sequence/filter_items_sequence.png)
 
 При вводе запроса или изменении фильтров JavaScript отбирает подходящие предметы из массива в оперативной памяти и обновляет интерфейс. Запись в `localStorage` при фильтрации не выполняется.
 
 ### 4. Комплексный сценарий — просмотр, поиск и удаление
 
-![Комплексный сценарий]([sequence/collection_workflow_sequence.png](https://github.com/Moonakan/smart-todo-srs/blob/docs/lab5-behavior-diagrams/docs/behavior/collection_workflow_sequence.png))
+![Комплексный сценарий](sequence/collection_workflow_sequence.png)
 
 При открытии страницы список загружается из `localStorage`. Пользователь находит нужный предмет, нажимает «Удалить» и подтверждает действие. Удаление сохраняется; если сохранить не удалось, предмет возвращается в массив.
 
