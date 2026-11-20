@@ -1,0 +1,43 @@
+@startuml
+title Варианты использования — Органайзер коллекций
+left to right direction
+skinparam shadowing false
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #F2F7FF
+  BorderColor #46658C
+}
+
+actor "Пользователь" as User
+
+rectangle "Органайзер коллекций" {
+  usecase "Просмотреть\nколлекцию" as View
+  usecase "Добавить\nпредмет" as Add
+  usecase "Редактировать\nпредмет" as Edit
+  usecase "Изменить\nстатус" as Status
+  usecase "Удалить\nпредмет" as Delete
+  usecase "Найти\nпредмет" as Search
+  usecase "Отфильтровать\nпредметы" as Filter
+  usecase "Проверить\nданные" as Validate
+  usecase "Сохранить\nизменения" as Save
+  usecase "Подтвердить\nудаление" as Confirm
+}
+
+User -- View
+User -- Add
+User -- Edit
+User -- Status
+User -- Delete
+User -- Search
+User -- Filter
+
+Add ..> Validate : <<include>>
+Edit ..> Validate : <<include>>
+Add ..> Save : <<include>>
+Edit ..> Save : <<include>>
+Delete ..> Save : <<include>>
+Delete ..> Confirm : <<include>>
+Status ..> Edit : <<extend>>
+Search ..> View : <<extend>>
+Filter ..> View : <<extend>>
+@enduml

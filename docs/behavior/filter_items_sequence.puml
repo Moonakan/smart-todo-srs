@@ -1,0 +1,28 @@
+@startuml
+title Поиск и фильтрация коллекции
+autonumber
+actor "Пользователь" as User
+boundary "Интерфейс\n(поиск и фильтры)" as UI
+control "JavaScript\n(render)" as JS
+collections "Массив items\nв памяти" as Items
+
+User -> UI : Вводит название и/или\nвыбирает тип и статус
+UI -> JS : Событие input / change
+activate JS
+JS -> UI : Прочитать значения поиска и фильтров
+JS -> Items : Отобрать предметы по\nназванию, категории и статусу
+Items --> JS : visibleItems
+alt Есть совпадения
+  JS -> UI : Показать карточки visibleItems
+  JS -> UI : Счётчик «Показано X из Y»
+  UI --> User : Видит найденные предметы
+else Совпадений нет
+  JS -> UI : Показать «Ничего не найдено»
+  UI --> User : Меняет запрос или фильтры
+end
+note right of JS
+  Фильтрация выполняется в памяти.
+  localStorage при поиске не изменяется.
+end note
+deactivate JS
+@enduml

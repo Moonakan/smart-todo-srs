@@ -1,0 +1,32 @@
+@startuml
+title Добавление предмета в коллекцию
+autonumber
+actor "Пользователь" as User
+boundary "Интерфейс\n(HTML-форма)" as UI
+control "JavaScript\n(script.js)" as JS
+database "localStorage" as LS
+
+User -> UI : Вводит название, тип, автора,\nгод, заметки и статус
+User -> UI : Нажимает «Добавить предмет»
+UI -> JS : Событие submit
+activate JS
+JS -> JS : Проверить название, категорию и год
+alt Данные корректны
+  JS -> JS : Создать id и добавить предмет в items
+  JS -> LS : setItem(ключ, JSON.stringify(items))
+  alt Сохранение успешно
+    LS --> JS : OK
+    JS -> UI : Очистить форму и вызвать render()
+    UI --> User : Новый предмет виден в списке
+  else Ошибка сохранения
+    LS --> JS : Исключение
+    JS -> JS : Удалить несохранённый предмет из items
+    JS -> UI : Показать ошибку сохранения
+    UI --> User : Сообщение об ошибке
+  end
+else Данные некорректны
+  JS -> UI : Показать сообщение о неверных данных
+  UI --> User : Исправьте поля формы
+end
+deactivate JS
+@enduml
