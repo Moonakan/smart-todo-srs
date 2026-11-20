@@ -30,7 +30,7 @@
 
 ### 1. Добавление предмета
 
-![Добавление предмета]([sequence/add_item_sequence.png](https://github.com/Moonakan/smart-todo-srs/blob/docs/lab5-behavior-diagrams/docs/behavior/add_item_sequence.png))
+![Добавление предмета]([sequence/add_item_sequence.png](https://github.com/Moonakan/smart-todo-srs/blob/docs/lab5-behavior-diagrams/docs/behavior/add_item_sequence.png.)
 
 Пользователь заполняет форму. Скрипт проверяет обязательное название, тип и формат года, добавляет объект в массив и сохраняет коллекцию в `localStorage`. При ошибке сохранения добавление откатывается; при успешном сохранении список обновляется.
 
