@@ -1,0 +1,47 @@
+@startuml
+title Комплексный сценарий: просмотр, поиск и удаление
+autonumber
+actor "Пользователь" as User
+boundary "Интерфейс" as UI
+control "JavaScript" as JS
+database "localStorage" as LS
+
+== Открытие приложения ==
+User -> UI : Открывает страницу
+UI -> JS : Инициализация script.js
+JS -> LS : getItem(ключ коллекции)
+LS --> JS : JSON с предметами или пустой список
+JS -> JS : loadItems() и render()
+JS -> UI : Показать все карточки
+UI --> User : Список коллекции
+
+== Поиск нужного предмета ==
+User -> UI : Вводит запрос или выбирает фильтр
+UI -> JS : input / change
+JS -> JS : Отобрать visibleItems
+JS -> UI : Обновить список и счётчик
+UI --> User : Результаты поиска
+
+== Удаление найденного предмета ==
+User -> UI : Нажимает «Удалить»
+UI -> JS : click, id предмета
+JS -> User : confirm("Удалить предмет?")
+alt Пользователь отменил
+  User --> JS : Нет
+  JS -> UI : Оставить коллекцию без изменений
+else Пользователь подтвердил
+  User --> JS : Да
+  JS -> JS : Удалить предмет из items
+  JS -> LS : setItem(ключ, JSON.stringify(items))
+  alt Сохранение успешно
+    LS --> JS : OK
+    JS -> UI : render() и сообщение «Предмет удалён»
+    UI --> User : Обновлённый список
+  else Ошибка сохранения
+    LS --> JS : Исключение
+    JS -> JS : Восстановить удалённый предмет
+    JS -> UI : Показать ошибку сохранения
+    UI --> User : Предмет остаётся в коллекции
+  end
+end
+@enduml

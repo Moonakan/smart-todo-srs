@@ -1,0 +1,38 @@
+@startuml
+title Редактирование предмета и изменение статуса
+autonumber
+actor "Пользователь" as User
+boundary "Интерфейс\n(HTML-форма)" as UI
+control "JavaScript\n(script.js)" as JS
+database "localStorage" as LS
+
+User -> UI : Нажимает «Редактировать»
+UI -> JS : Событие click, id предмета
+activate JS
+JS -> JS : Найти предмет по id
+JS -> UI : Заполнить форму текущими данными
+deactivate JS
+User -> UI : Меняет поля или статус\n«В коллекции» / «Хочу приобрести»
+User -> UI : Нажимает «Сохранить изменения»
+UI -> JS : Событие submit
+activate JS
+JS -> JS : Проверить данные и сохранить старые значения
+alt Данные корректны
+  JS -> JS : Обновить объект в массиве items
+  JS -> LS : setItem(ключ, JSON.stringify(items))
+  alt Сохранение успешно
+    LS --> JS : OK
+    JS -> UI : Сбросить режим редактирования и render()
+    UI --> User : Обновлённая карточка и статус
+  else Ошибка сохранения
+    LS --> JS : Исключение
+    JS -> JS : Восстановить старые значения
+    JS -> UI : Показать ошибку
+    UI --> User : Изменения не сохранены
+  end
+else Данные некорректны
+  JS -> UI : Показать ошибку валидации
+  UI --> User : Исправьте поля
+end
+deactivate JS
+@enduml
